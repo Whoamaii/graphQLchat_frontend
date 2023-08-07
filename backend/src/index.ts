@@ -12,6 +12,7 @@ import * as dotenv from "dotenv";
 import { getSession } from "next-auth/react";
 import { GraphQLContext, Session } from "./util/types";
 import { PrismaClient } from "@prisma/client";
+import cors from "cors";
 
 async function main() {
   dotenv.config();

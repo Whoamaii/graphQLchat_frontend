@@ -17,7 +17,7 @@ export interface User {
   email: string;
   emailVerified: boolean;
   image: string;
-  name: string;
+  name?: string;
 }
 
 export interface CreateUsernameResponse {
