@@ -4,6 +4,7 @@ import ConversationList from "./ConversationList";
 import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
 import ConversationOperations from "../../../graphql/operations/conversations";
 import {
+  ConversationDeletedData,
   ConversationUpdatedData,
   ConversationsData,
 } from "../../../util/types";
@@ -62,6 +63,38 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
         if (currentlyViewingConversation) {
           onViewConversation(conversationId, false);
         }
+      },
+    }
+  );
+
+  useSubscription<ConversationDeletedData, null>(
+    ConversationOperations.Subscriptions.conversationDeleted,
+    {
+      onData: ({ client, data }) => {
+        const { data: subscriptionData } = data;
+
+        if (!subscriptionData) return;
+
+        const existing = client.readQuery<ConversationsData>({
+          query: ConversationOperations.Queries.conversations,
+        });
+
+        if (!existing) return;
+
+        const { conversations } = existing;
+        const {
+          conversationDeleted: { id: deletedConversationId },
+        } = subscriptionData;
+
+        client.writeQuery<ConversationsData>({
+          query: ConversationOperations.Queries.conversations,
+          data: {
+            conversations: conversations.filter(
+              (conversation) => conversation.id !== deletedConversationId
+            ),
+          },
+        });
+        router.push("/");
       },
     }
   );
@@ -178,7 +211,7 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
   return (
     <Box
       display={{ base: conversationId ? "none" : "flex", md: "flex" }}
-      width={{ base: "100%", md: "400px" }}
+      width={{ base: "100%", md: "430px" }}
       flexDirection="column"
       gap={4}
       bg="whiteAlpha.50"
@@ -186,7 +219,7 @@ const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
       px={3}
     >
       {conversationsLoading ? (
-        <SkeletonLoader count={7} hight="80px" />
+        <SkeletonLoader count={7} height="80px" />
       ) : (
         <ConversationList
           session={session}

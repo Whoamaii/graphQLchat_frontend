@@ -5,7 +5,7 @@ import React from "react";
 import ConversationOperations from "../../../../graphql/operations/conversations";
 import { formatUsernames } from "../../../../util/functions";
 import { ConversationsData } from "../../../../util/types";
-// import SkeletonLoader from "../../../common/SkeletonLoader";
+import SkeletonLoader from "../../../common/SkeletonLoader";
 
 interface MessagesHeaderProps {
   userId: string;
@@ -17,17 +17,13 @@ const MessagesHeader: React.FC<MessagesHeaderProps> = ({
   conversationId,
 }) => {
   const router = useRouter();
-  const { data, loading } = useQuery<ConversationsData>(
+  const { data, loading } = useQuery<ConversationsData, null>(
     ConversationOperations.Queries.conversations
   );
 
   const conversation = data?.conversations.find(
     (conversation) => conversation.id === conversationId
   );
-
-  if (data?.conversations && !loading && !conversation) {
-    router.replace(process.env.NEXTAUTH_URL as string);
-  }
 
   return (
     <Stack
@@ -49,7 +45,7 @@ const MessagesHeader: React.FC<MessagesHeaderProps> = ({
       >
         Back
       </Button>
-      {/* {loading && <SkeletonLoader count={1} height="30px" width="320px" />} */}
+      {loading && <SkeletonLoader count={1} height="30px" width="320px" />}
       {!conversation && !loading && <Text>Conversation Not Found</Text>}
       {conversation && (
         <Stack direction="row">

@@ -32,7 +32,7 @@ interface ConversationItemProps {
   onEditConversation?: () => void;
   hasSeenLatestMessage?: boolean | undefined;
   selectedConversationId?: string;
-  onDeleteConversation?: (conversationId: string) => void;
+  onDeleteConversation: (conversationId: string) => void;
   onLeaveConversation?: (conversation: ConversationPopulated) => void;
   isSelected: boolean;
 }
@@ -59,8 +59,8 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
     }
   };
 
-  const showMenu =
-    onEditConversation && onDeleteConversation && onLeaveConversation;
+  // const showMenu =
+  //   onEditConversation && onDeleteConversation && onLeaveConversation;
 
   return (
     <Stack
@@ -78,19 +78,32 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       onContextMenu={handleClick}
       position="relative"
     >
-      {showMenu && (
+      {menuOpen && (
         <Menu isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
           <MenuList bg="#2d2d2d">
             <MenuItem
               icon={<AiOutlineEdit fontSize={20} />}
               onClick={(event) => {
                 event.stopPropagation();
-                onEditConversation();
+                // onEditConversation();
               }}
+              bg="#2d2d2d"
+              _hover={{ bg: "whiteAlpha.300" }}
             >
               Edit
             </MenuItem>
-            {conversation.participants.length > 2 ? (
+            <MenuItem
+              icon={<MdDeleteOutline fontSize={20} />}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDeleteConversation(conversation.id);
+              }}
+              bg="#2d2d2d"
+              _hover={{ bg: "whiteAlpha.300" }}
+            >
+              Delete
+            </MenuItem>
+            {/* {conversation.participants.length > 2 ? (
               <MenuItem
                 icon={<BiLogOut fontSize={20} />}
                 onClick={(event) => {
@@ -110,11 +123,11 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
               >
                 Delete
               </MenuItem>
-            )}
+            )} */}
           </MenuList>
         </Menu>
       )}
-      <Flex position="absolute" left="-6px">
+      <Flex position="relative" left="-6px">
         {hasSeenLatestMessage === false && (
           <BsFillChatRightDotsFill fontSize={18} color="#6B46C1" />
         )}
