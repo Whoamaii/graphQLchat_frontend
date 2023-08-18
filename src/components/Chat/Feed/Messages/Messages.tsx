@@ -26,12 +26,8 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
     },
   });
 
-  if (error) {
-    return null;
-  }
-
   const subscribeToMoreMessages = (conversationId: string) => {
-    subscribeToMore({
+    return subscribeToMore({
       document: MessageOperations.Subscription.messageSent,
       variables: { conversationId },
       updateQuery: (prev, { subscriptionData }: MessageSubscriptionData) => {
@@ -40,16 +36,24 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
         const newMessage = subscriptionData.data.messageSent;
 
         return Object.assign({}, prev, {
-          messages: [newMessage, ...prev.messages],
+          messages:
+            newMessage.sender.id === userId
+              ? prev.messages
+              : [newMessage, ...prev.messages],
         });
       },
     });
   };
 
   useEffect(() => {
-    subscribeToMoreMessages(conversationId);
+    const unsubscribe = subscribeToMoreMessages(conversationId);
+
+    return () => unsubscribe();
   }, [conversationId]);
 
+  if (error) {
+    return null;
+  }
   console.log("here is messages", data);
 
   return (
@@ -63,6 +67,7 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
         <Flex direction="column-reverse" overflowY="scroll" height="100%">
           {data.messages.map((message) => (
             <MessageItem
+              key={message.id}
               message={message}
               sentByMe={message.sender.id === userId}
             />

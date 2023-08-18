@@ -9,7 +9,10 @@ import { useRouter } from "next/router";
 interface ConversationListProps {
   session: Session;
   conversations: Array<ConversationPopulated>;
-  onViewConversation: (conversationId: string) => void;
+  onViewConversation: (
+    conversationId: string,
+    hasSeenLatestMessage: boolean | undefined
+  ) => void;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
@@ -27,6 +30,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
     user: { id: userId },
   } = session;
 
+  const sortedConversations = [...conversations].sort(
+    (a, b) => b.updatedAt.valueOf() - a.updatedAt.valueOf()
+  );
   return (
     <Box width="100%">
       <Box
@@ -47,15 +53,26 @@ const ConversationList: React.FC<ConversationListProps> = ({
         isOpen={isOpen}
         onClose={onClose}
       />
-      {conversations.map((conversation) => (
-        <ConversationItem
-          onClick={() => onViewConversation(conversation.id)}
-          key={conversation.id}
-          userId={userId}
-          conversation={conversation}
-          isSelected={conversation.id === router.query.conversationId}
-        ></ConversationItem>
-      ))}
+      {sortedConversations.map((conversation) => {
+        const participant = conversation.participants.find(
+          (p: any) => p.user.id === userId
+        );
+        return (
+          <ConversationItem
+            onClick={() =>
+              onViewConversation(
+                conversation.id,
+                participant?.hasSeenLatestMessage
+              )
+            }
+            key={conversation.id}
+            userId={userId}
+            conversation={conversation}
+            isSelected={conversation.id === router.query.conversationId}
+            hasSeenLatestMessage={participant?.hasSeenLatestMessage}
+          ></ConversationItem>
+        );
+      })}
     </Box>
   );
 };

@@ -30,7 +30,7 @@ interface ConversationItemProps {
   conversation: ConversationPopulated;
   onClick: () => void;
   onEditConversation?: () => void;
-  hasSeenLatestMessage?: boolean;
+  hasSeenLatestMessage?: boolean | undefined;
   selectedConversationId?: string;
   onDeleteConversation?: (conversationId: string) => void;
   onLeaveConversation?: (conversation: ConversationPopulated) => void;

@@ -48,6 +48,12 @@ export interface CreateConversationInput {
   participantIds: Array<string>;
 }
 
+export interface ConversationUpdatedData {
+  conversationUpdated: {
+    conversation: ConversationPopulated;
+  };
+}
+
 /**
  * Messages
  */
